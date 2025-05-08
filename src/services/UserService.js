@@ -1,22 +1,32 @@
-import axios from "axios";
+import api from "./apiService";
+import authService from "./authService";
 
-class UserService {
-  async list() {
-    const users = await axios.get(`${process.env.REACT_APP_SERVER_URL}/users`);
-    return users;
+api.interceptors.response.use((response) => {
+  return response;
+}, (error) => {
+  if (error.response.status === 401) {
+    authService.logout();
+
+    window.location.href = '/login';
   }
-  async get(id) {
-    throw new Error("Not implemented");
-  }
-  async create(data) {
-    throw new Error("Not implemented");
-  }
-  async delete(id) {
-    throw new Error("Not implemented");
-  }
-  async update(id, data) {
-    throw new Error("Not implemented");
-  }
+
+  return Promise.reject(error);
+});
+
+const userService = {
+  async getUsers() {
+    const response = await api.get('/users');
+    return response.data;
+  },
+  async createUser(userData) {
+    await api.post('/users', userData);
+  },
+  async updateUser(id, userData) {
+    await api.put(`/users/${id}`, userData);
+  },
+  async deleteUser(id) {
+    await api.delete(`/users/${id}`);
+  },
 }
 
-export default UserService;
+export default userService;

@@ -1,22 +1,28 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
-import Home from "./pages/Home";
-import Users from "./pages/Users";
-import UserEdit, { userLoader } from "./pages/UserEdit";
+import LoginPage from "./pages/LoginPage";
+import UsersPage from "./pages/UsersPage";
+
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <LoginPage />,
   },
   {
     path: "/users",
-    element: <Users />,
-  },
-  {
-    path: "/users/:userId",
-    element: <UserEdit />,
-    loader: userLoader,
+    element: (
+      <ProtectedRoute>
+        <UsersPage />
+      </ProtectedRoute>
+    ),
   },
 ]);
 
